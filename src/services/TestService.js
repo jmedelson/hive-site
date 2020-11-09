@@ -1,4 +1,6 @@
-import axios from "axios"
+import axios from "axios";
+
+
 // import { get } from "core-js/fn/dict";
 
 export default {
@@ -11,6 +13,11 @@ export default {
         console.log(res.data)
         res = JSON.parse(res.data)
         console.log(res.data)
+        return res.data;
+    },
+    async sendTwitch(){
+        let res = await axios.get("http://localhost:8080/message/wait");
+        console.log("RES", res)
         return res.data;
     }
 }

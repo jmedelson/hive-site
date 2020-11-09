@@ -2,7 +2,8 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <h2>{{ event.id }}</h2>
-    <button v-on:click="testAws">load</button>
+    <button v-on:click="testAws">load AWS</button>
+    <button v-on:click="testTwitch">send Twitch</button>
   </div>
 </template>
 
@@ -39,6 +40,12 @@ export default {
         (event => {
           this.$set(this, "event", event);
         }).bind(this)
+      )
+    },
+    async testTwitch(){
+      TestService.sendTwitch()
+      .then(
+        console.log("!!!!!")
       )
     }
   }
