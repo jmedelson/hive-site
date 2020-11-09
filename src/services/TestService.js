@@ -5,7 +5,7 @@ import axios from "axios";
 
 export default {
     async getEvents() {
-        let res = await axios.get("http://localhost:8080/events");
+        let res = await axios.get("/events");
         return res.data;
     },
     async getAws(){
@@ -16,8 +16,9 @@ export default {
         return res.data;
     },
     async sendTwitch(){
-        let res = await axios.get("http://localhost:8080/message/wait");
+        console.log("twitch get")
+        let res = await axios.get("/message/wait");
         console.log("RES", res)
-        return res.data;
+        return res.status;
     }
 }

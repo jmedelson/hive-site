@@ -50,6 +50,7 @@ app.get('/events', cors(), (req, res) => {
 	res.send(events);
 });
 app.get('/message/:scene', cors(), async(req, res) => {
+	console.log("send message")
 	const scene = req.params.scene;
 	const link = `https://api.twitch.tv/extensions/message/21314155`
 	const bearerPrefix = 'Bearer ';
@@ -67,7 +68,9 @@ app.get('/message/:scene', cors(), async(req, res) => {
           targets: ['broadcast']
         })
 	}
-	return await axios(request)
+	let hold = await axios(request)
+	console.log(hold.status)
+	return(hold)
 });
 const port = process.env.PORT || 8080
 app.listen(port)

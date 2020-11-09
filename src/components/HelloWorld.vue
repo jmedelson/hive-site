@@ -44,9 +44,9 @@ export default {
     },
     async testTwitch(){
       TestService.sendTwitch()
-      .then(
-        console.log("!!!!!")
-      )
+      .then(res =>{
+        console.log("!!!!!",res)
+      })
     }
   }
 }
