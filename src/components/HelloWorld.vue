@@ -1,9 +1,11 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <h2>{{ event.id }}</h2>
-    <button v-on:click="testAws">load AWS</button>
-    <button v-on:click="testTwitch">send Twitch</button>
+    <h2>Scene Select</h2>
+    <h2>Current Scene: <span v-html="event"></span></h2>
+    <button v-on:click="testTwitch('wait')">change scene - wait</button>
+    <button v-on:click="testTwitch('poll')">change scene - poll</button>
+    <button v-on:click="testTwitch('agree')">change scene - agree</button>
   </div>
 </template>
 
@@ -17,11 +19,11 @@ export default {
   data() {
     // initialize the event object
     return {
-      event: {id:'unloaded'}
+      event: "unloaded"
     }
   },
   created() {
-    this.getEventData();
+    //this.getEventData();
   },
   methods: {
     async getEventData() {
@@ -34,19 +36,14 @@ export default {
         }).bind(this)
       );
     },
-    async testAws(){
-      TestService.getAws()
+    async testTwitch(scene){
+      this.$set(this, "event", '&#8987;');
+      TestService.sendTwitch(scene)
       .then(
-        (event => {
-          this.$set(this, "event", event);
+        (res => {
+          this.$set(this, "event", res);
         }).bind(this)
-      )
-    },
-    async testTwitch(){
-      TestService.sendTwitch()
-      .then(res =>{
-        console.log("!!!!!",res)
-      })
+      );
     }
   }
 }
