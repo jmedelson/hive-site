@@ -2,10 +2,16 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <h2>Scene Select</h2>
-    <h2>Current Scene: <span v-html="event"></span></h2>
-    <button v-on:click="testTwitch('wait')">change scene - wait</button>
-    <button v-on:click="testTwitch('poll')">change scene - poll</button>
-    <button v-on:click="testTwitch('agree')">change scene - agree</button>
+    <h3>Current Scene: <span v-html="scene"></span></h3>
+    <button v-on:click="setScene('wait')">change scene - wait</button>
+    <button v-on:click="setScene('poll')">change scene - poll</button>
+    <button v-on:click="setScene('agree')">change scene - agree</button>
+    <h2>Question Input</h2>
+    <input v-model="question" placeholder="question?">
+    <button v-on:click="setQuestion()">Submit Question</button>
+    <h2>Answer</h2>
+    <input v-model="answer" placeholder="Answer">
+    <button v-on:click="setAnswer()">Submit Answer</button>
   </div>
 </template>
 
@@ -19,31 +25,36 @@ export default {
   data() {
     // initialize the event object
     return {
-      event: "unloaded"
+      scene: "unloaded",
+      question: "",
+      answer:'',
     }
   },
   created() {
-    //this.getEventData();
+    TestService.getAWSdata()
+      .then(
+        (([scene,question,answer]) => {
+          this.$set(this, "scene", scene);
+          this.$set(this, "question", question);
+          this.$set(this, "answer", answer);
+        }).bind(this)
+      )
   },
   methods: {
-    async getEventData() {
-      // Get the access token from the auth wrapper
-      // Use the eventService to call the getEventSingle method
-      TestService.getEvents()
+    async setScene(scene){
+      this.$set(this, "scene", '&#8987;');
+      TestService.setScene(scene)
       .then(
-        (event => {
-          this.$set(this, "event", event);
+        (res => {
+          this.$set(this, "scene", res);
         }).bind(this)
       );
     },
-    async testTwitch(scene){
-      this.$set(this, "event", '&#8987;');
-      TestService.sendTwitch(scene)
-      .then(
-        (res => {
-          this.$set(this, "event", res);
-        }).bind(this)
-      );
+    async setQuestion(){
+      TestService.setData("question",this.question)
+    },
+    async setAnswer(){
+      TestService.setData("answer",this.answer)
     }
   }
 }
