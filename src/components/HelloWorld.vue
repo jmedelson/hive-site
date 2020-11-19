@@ -11,7 +11,10 @@
     <h2>Answer</h2>
     <input v-model="answer" placeholder="Answer">
     <button v-on:click="setAnswer()">Submit Answer</button>
-    <button id="get-resp" v-on:click="getRespones()">Get Results</button>
+    <h2>--Was Answer Correct--</h2>
+    <button class="correct" v-on:click="setCorrect(true)">Correct</button>
+    <button class="correct" v-on:click="setCorrect(false)">Incorrect</button>
+    <button id="get-resp" v-on:click="getRespones()">Get Responses</button>
     <ul>
       <li class="d-block" v-for="(item,index) in items" :key="index">
         <p>{{item.word}}---{{item.count}}</p>
@@ -63,6 +66,13 @@ export default {
     async setAnswer(){
       TestService.setData("answer",this.answer)
     },
+    async setCorrect(ans){
+      if(ans){
+        console.log("Correct")
+      }else{
+        console.log("Incorrect")
+      }
+    },
     async getRespones(){
       TestService.getResponse()
       .then(
@@ -102,6 +112,10 @@ a {
   margin: auto;
   font-size: 30px;
   font-weight: bold;
-  margin-top:10px;
+  margin-top:20px;
+}
+.correct{
+  margin: auto 38px;
+  font-size: 20px;
 }
 </style>
