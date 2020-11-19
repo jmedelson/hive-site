@@ -1,7 +1,6 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Scene Select</h2>
+    <h1>{{ msg }} <img id="icon" src="../assets/hive.png" alt=""></h1>
     <h3>Current Scene: <span v-html="scene"></span></h3>
     <button v-on:click="setScene('wait')">change scene - wait</button>
     <button v-on:click="setScene('poll')">change scene - poll</button>
@@ -12,6 +11,12 @@
     <h2>Answer</h2>
     <input v-model="answer" placeholder="Answer">
     <button v-on:click="setAnswer()">Submit Answer</button>
+    <button id="get-resp" v-on:click="getRespones()">Get Results</button>
+    <ul>
+      <li class="d-block" v-for="(item,index) in items" :key="index">
+        <p>{{item.word}}---{{item.count}}</p>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -28,6 +33,7 @@ export default {
       scene: "unloaded",
       question: "",
       answer:'',
+      items:[],
     }
   },
   created() {
@@ -43,9 +49,10 @@ export default {
   methods: {
     async setScene(scene){
       this.$set(this, "scene", '&#8987;');
-      TestService.setScene(scene)
+      TestService.setData("scene", scene)
       .then(
         (res => {
+          console.log("++++",res)
           this.$set(this, "scene", res);
         }).bind(this)
       );
@@ -55,6 +62,15 @@ export default {
     },
     async setAnswer(){
       TestService.setData("answer",this.answer)
+    },
+    async getRespones(){
+      TestService.getResponse()
+      .then(
+        (res => {
+          console.log("RESPONSE DATA: ", res)
+          this.$set(this, "items", res);
+        }).bind(this)
+      )
     }
   }
 }
@@ -70,10 +86,22 @@ ul {
   padding: 0;
 }
 li {
-  display: inline-block;
-  margin: 0 10px;
+  display: block;
+  margin: 6px auto;
+  border: 3px solid black;
+  width: 60%;
 }
 a {
   color: #42b983;
+}
+#icon{
+  width: 40px;
+}
+#get-resp{
+  display: block;
+  margin: auto;
+  font-size: 30px;
+  font-weight: bold;
+  margin-top:10px;
 }
 </style>
