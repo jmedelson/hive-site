@@ -50,7 +50,7 @@ app.get('/events', cors(), (req, res) => {
 	res.send(events);
 });
 app.get('/message/:scene', cors(), async(req, res) => {
-	console.log("send message")
+	console.log("send message", res)
 	const scene = req.params.scene;
 	const link = `https://api.twitch.tv/extensions/message/21314155`
 	const bearerPrefix = 'Bearer ';
