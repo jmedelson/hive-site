@@ -55,5 +55,14 @@ export default {
         res = res.Items
         console.log(res)
         return(res)
+    },
+    async sendReset(){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag:"sendReset",
+            catagory:"reset",
+            payload:"reset"
+        })
+        console.log(res.data)
     }
 }
