@@ -1,27 +1,55 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }} <img id="icon" src="../assets/hive.png" alt=""></h1>
-    <a v-on:click="sendReset()" id='reset-button' class="button">Click to reset</a>
-    <h3>Current Scene: <span v-html="scene"></span></h3>
-    <button v-on:click="setScene('wait')">change scene - wait</button>
-    <button v-on:click="setScene('poll')">change scene - poll</button>
-    <button v-on:click="setScene('agree')">change scene - agree</button>
-    <h2>Question Input</h2>
-    <input v-model="question" placeholder="question?">
-    <button v-on:click="setQuestion()">Submit Question</button>
-    <h2>Answer</h2>
-    <input v-model="answer" placeholder="Answer">
-    <button v-on:click="setAnswer()">Submit Answer</button>
-    <h2>--Answer was: {{result}}--</h2>
-    <button class="correct" v-on:click="setCorrect(true)">Correct</button>
-    <button class="correct" v-on:click="setCorrect(false)">Incorrect</button>
-    <button id="get-resp" v-on:click="getRespones()">Get Responses</button>
-    <img src="../assets/undo.png" alt="undo icon" id="undo-icon">
-    <ul>
+    
+    <v-row align="center">
+      <v-col cols="12" md="3"><h2>Current Scene: <span v-html="scene"></span></h2></v-col>
+      <v-spacer></v-spacer>
+      <v-col cols="12" sm="4" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('wait')" v-bind:class="[this.scene == 'wait' ? 'selected':'']">change scene - wait</v-btn></v-col>
+      <v-col cols="12" sm="4" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('poll')" v-bind:class="[this.scene == 'poll' ? 'selected':'']">change scene - poll</v-btn></v-col>
+      <v-col cols="12" sm="4" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('agree')" v-bind:class="[this.scene == 'agree' ? 'selected':'']">change scene - agree</v-btn></v-col>
+    </v-row>
+    <v-row align="center">
+      <v-col cols="12" md="3"><h2>Question</h2></v-col>
+      <v-spacer></v-spacer>
+      <v-col cols="12" md="6"><v-text-field v-model="question" label="Question?" ></v-text-field></v-col>
+      <v-col cols="12" md="auto" ><v-btn color="#2a07ff" outlined v-on:click="setQuestion()" class="float-left float-md-right">Submit Question</v-btn></v-col>
+    </v-row>
+    <v-row align="center">
+      <v-col cols="12" md="3"><h2>Answer</h2></v-col>
+      <v-spacer></v-spacer>
+      <v-col cols="12" md="6"><v-text-field v-model="answer" label="Answer!" ></v-text-field></v-col>
+      <v-col cols="12" md="auto" ><v-btn color="#2a07ff" outlined v-on:click="setAnswer()" class="float-left float-md-right">Submit Answer</v-btn></v-col>
+    </v-row>
+    <v-row align="center">
+      <v-col cols="12" md="6"><h2>Was Answer correct: {{correct}}</h2></v-col>
+      <v-spacer></v-spacer>
+      <v-col cols="6" md="3" ><v-btn block color="#2a07ff" outlined 
+      v-on:click="setCorrect(true)" 
+      v-bind:class="[this.correct == 'Correct' ? 'selected':'']"
+      class="float-none float-md-right">Correct</v-btn></v-col>
+      <v-col cols="6" md="3" ><v-btn class="float-none float-md-right" block color="#2a07ff" outlined v-on:click="setCorrect(false)" v-bind:class="[this.correct == 'Incorrect' ? 'selected':'']">Incorrect</v-btn></v-col>    
+    </v-row>
+    <v-row align="center">
+      <v-col cols="0" md="4"></v-col>
+      <v-col cols="12" md="4"><v-btn color="#ff1862" elevation="4" block v-on:click="getRespones()">Get Responses</v-btn></v-col>
+      <v-spacer></v-spacer>
+      <v-col><v-checkbox v-model="autoPoll" label="Auto" @change="setTimer()"></v-checkbox></v-col>
+    </v-row>
+    <v-row align="center">
+      <v-col cols="12" md="5"><H2>Last merged ({{this.last.word1}}) into ({{this.last.word2}})</H2></v-col>
+      <v-spacer></v-spacer>
+      <v-col cols="12" md="5"><v-btn block color="#2a07ff" outlined class="float-right" v-on:click="undoMerge()"><v-icon>mdi-undo</v-icon> Undo</v-btn></v-col>
+    </v-row>
+    <v-row align="center">
+      <v-col cols="6" sm="4" md="3" xl="2" v-for="(item,index) in items" :key="index" >
+        <div class="item-div" v-on:click="itemSelect(item.word)" v-bind:class="[item1 == item.word ? 'first-word':'']"><p class="item-text">{{item.word}}---{{item.count}}</p></div>
+      </v-col>
+    </v-row>
+    <!-- <ul>
       <li class="d-block" :class="item.word" v-for="(item,index) in items" :key="index" v-on:click="itemSelect(item.word)">
         <p>{{item.word}}---{{item.count}}</p>
       </li>
-    </ul>
+    </ul> -->
   </div>
 </template>
 
@@ -38,7 +66,7 @@ export default {
       scene: "unloaded",
       question: "",
       answer:'',
-      result:'unset',
+      correct:'unset',
       items:[],
       rules:{},
       item1:false,
@@ -47,18 +75,29 @@ export default {
         word1:'',
         word2:'',
         count:0
-      }
+      },
+      autoPoll: false,
+      myInterval:''
+
     }
   },
   created() {
     TestService.getAWSdata()
       .then(
-        (([scene,question,answer]) => {
+        (([scene,question,answer, correct]) => {
           this.$set(this, "scene", scene);
           this.$set(this, "question", question);
           this.$set(this, "answer", answer);
+          if(correct==true){
+            this.$set(this, "correct", "Correct");
+          }else if(correct==false){
+            this.$set(this, "correct", "Incorrect");
+          }else{
+            this.$set(this, "correct", "unset");
+          }
         }).bind(this)
       )
+    this.getRespones()
   },
   methods: {
     async setScene(scene){
@@ -76,6 +115,12 @@ export default {
     },
     async setAnswer(){
       TestService.setData("answer",this.answer)
+      .then(
+        (res => {
+          console.log(res)
+          this.setCorrect("unset")
+        }).bind(this)
+      )
     },
     async setCorrect(ans){
       if(ans){
@@ -83,14 +128,28 @@ export default {
       }else{
         console.log("Incorrect")
       }
+      TestService.setData("correct",ans)
+        .then(
+          (res => {
+            console.log("++++",res)
+            // this.$set(this, "scene", res);
+            if(res==true){
+              this.$set(this, "correct", "Correct");
+            }else if(res==false){
+              this.$set(this, "correct", "Incorrect");
+            }else{
+              this.$set(this, "correct", "unset");
+            }
+          }).bind(this)
+        );
     },
     itemCombine(data){
       let hold = []
       for(let i = 0; i<data.length; i++){
-        console.log(data[i].word in this.rules)
+        // console.log(data[i].word in this.rules)
         if(data[i].word in this.rules){
           let check = this.rules[data[i].word]
-          console.log(data[i].word,">>>>>",check)
+          // console.log(data[i].word,">>>>>",check)
           for(let j = 0; j<data.length; j++){
             if(data[j].word == check){
               data[j].count += data[i].count
@@ -105,6 +164,8 @@ export default {
         }
       }
       console.log("HOLD DATA:::::", hold)
+      hold.sort((a, b) => (a.count<b.count)? 1 : -1)
+      console.log("HOLD DATA2:::::", hold)
       return(hold)
     },
     async getRespones(){
@@ -117,7 +178,6 @@ export default {
         }).bind(this)
       )
       console.log("items", this.items)
-      console.log("computed",this.combinedResults)
     },
     async sendReset(){
       TestService.sendReset()
@@ -143,6 +203,30 @@ export default {
         this.item2 = false;
         this.items = this.itemCombine(this.items)
       }
+    },
+    setTimer(){
+      this.$nextTick(()=>{
+        console.log(this.autoPoll)
+        if(this.autoPoll){
+          this.getRespones()
+          this.myInterval = setInterval(function(){
+            console.log("interval called")
+            this.getRespones()
+          }.bind(this), 30000)
+        }else if(!this.autoPoll){
+          clearInterval(this.myInterval)
+        }
+      })
+    },
+    undoMerge(){
+      delete this.rules[this.last.word1]
+      this.getRespones()
+      this.last = {
+        word1:'',
+        word2:'',
+        count:0
+      }
+      console.log("Merge undone")
     }
   }
 }
@@ -150,8 +234,28 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+.item-div{
+  border: 2px solid black;
+}
+.item-div:hover{
+  background: #d6f7fc;
+}
+.item-text{
+  text-align: center;
+  font-size: 20px;
+  padding: 10px;
+  margin: 5px;
+}
+.first-word{
+  background: #731baa85 !important;
+  color: white !important;
+}
+.selected{
+  color:green !important;
+  background: lightgreen !important; 
+}
+#hello{
+  background:#d3fffe;
 }
 ul {
   list-style-type: none;
@@ -170,11 +274,7 @@ a {
   width: 40px;
 }
 #get-resp{
-  display: block;
-  margin: auto;
-  font-size: 30px;
-  font-weight: bold;
-  margin-top:20px;
+  
 }
 .correct{
   margin: auto 38px;

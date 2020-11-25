@@ -10,7 +10,7 @@ export default {
         res = JSON.parse(res.data)
         res = res.message
         console.log("res",res)
-        return([res.scene,res.question,res.answer])
+        return([res.scene,res.question,res.answer,res.correct])
     },
     async setScene(scene){
         let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
@@ -48,12 +48,12 @@ export default {
             catagory:"placeholder",
             payload:"placeholder"
         })
-        console.log(res.data)
+        // console.log(res.data)
         res = JSON.parse(res.data)
         res = res.message
-        console.log(res)
+        // console.log(res)
         res = res.Items
-        console.log(res)
+        // console.log(res)
         return(res)
     },
     async sendReset(){
@@ -64,5 +64,10 @@ export default {
             payload:"reset"
         })
         console.log(res.data)
+        res = JSON.parse(res.data)
+        if(res.id=="reset-results" && res.message=="DONE"){
+            console.log("SUCCESS")
+            return(0)
+        }
     }
 }
