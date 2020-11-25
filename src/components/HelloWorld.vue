@@ -226,6 +226,8 @@ export default {
         word2:'',
         count:0
       }
+      this.item1 = false;
+      this.item2 = false;
       console.log("Merge undone")
     }
   }
