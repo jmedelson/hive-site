@@ -118,7 +118,7 @@ export default {
       .then(
         (res => {
           console.log(res)
-          this.setCorrect("unset")
+          // this.setCorrect("unset")
         }).bind(this)
       )
     },
