@@ -16,6 +16,7 @@
 
         <v-toolbar-title> HiveMind Helper Site </v-toolbar-title>
         <v-spacer></v-spacer>
+        <v-btn color="#141386" rounded v-on:click="changeScene()" class="mr-4">Go to: {{scene}}</v-btn>
         <v-btn
             color="#ff1862"
             elevation="4"
@@ -26,7 +27,8 @@
 
     <v-main>
       <v-container fluid>
-        <HelloWorld :key="childKey"/>
+        <HelloWorld :key="childKey" v-if="display"/>
+        <VoteHistory v-else/>
       </v-container>
     </v-main>
   </v-app>
@@ -34,6 +36,7 @@
 
 <script>
 import HelloWorld from './components/HelloWorld';
+import VoteHistory from './components/VoteHistory';
 import TestService from './services/TestService.js';
 
 export default {
@@ -41,11 +44,14 @@ export default {
 
   components: {
     HelloWorld,
+    VoteHistory,
   },
 
   data: () => ({
     //
     childKey:0,
+    scene:"Poll Results",
+    display:true
   }),
   methods: {
     async sendReset(){
@@ -60,6 +66,15 @@ export default {
         }).bind(this)
       )
     },
+    changeScene(){
+      if(this.display){
+        this.display = false
+        this.scene= "Home"
+      }else{
+        this.display = true
+        this.scene= "Poll Results"
+      }
+    }
   }
 };
 </script>
