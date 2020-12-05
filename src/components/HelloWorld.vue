@@ -111,13 +111,21 @@ export default {
       );
     },
     async setQuestion(){
-      TestService.setData("question",this.question)
-    },
-    async setAnswer(){
-      TestService.setData("answer",this.answer)
+      TestService.setData("question",this.question.trim())
       .then(
         (res => {
           console.log(res)
+          this.$set(this, "question", res);
+          // this.setCorrect("unset")
+        }).bind(this)
+      )
+    },
+    async setAnswer(){
+      TestService.setData("answer",this.answer.trim())
+      .then(
+        (res => {
+          console.log(res)
+          this.$set(this, "correct", "unset");
           // this.setCorrect("unset")
         }).bind(this)
       )

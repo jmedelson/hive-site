@@ -4,6 +4,16 @@ import axios from "axios";
 // import { get } from "core-js/fn/dict";
 
 export default {
+    async getVotedata(){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag:"question-data"
+        })
+        console.log(res);
+        res = JSON.parse(res.data)
+        res = res.message
+        return res
+    },
     async getAWSdata(){
         let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
         let res = await axios.get(link)
@@ -69,5 +79,85 @@ export default {
             console.log("SUCCESS")
             return(0)
         }
+    },
+    async answerHistory(question){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag:"answer-data",
+            payload:question
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        res = res.message
+        let hold = {}
+        try{
+            res = res.Items
+            // console.log("res1", res)
+            res.forEach(function(item){
+                // console.log("res2", item)
+                let holder = item.word
+                // console.log("res3", holder)
+                holder = holder.split("//")
+                let channel = holder[0];
+                let word = holder[1];
+                item["word"] = word
+                item['channel']
+                if(!item['agree']){
+                    item.agree = 0
+                }
+                if(!item['disagree']){
+                    item.disagree = 0
+                }
+                hold[channel] = hold[channel] || []
+                hold[channel].push(item)
+                
+            })
+        }catch(err){
+            console.error("error :", err)
+        //     // res = []
+        }
+        const oauth = await this.requestOauth();
+        console.log("oauth",oauth)
+        const users = await this.requestUsers(Object.keys(hold),oauth);
+        console.log("users",users)
+        console.log("hold", hold)
+        for(let item of users){
+            hold[item.login] = hold[item.id]
+            delete hold[item.id]
+        }
+        return hold
+        // return res.Items
+    },
+    async requestOauth(){
+        const link = "https://id.twitch.tv/oauth2/token?client_id=" + "552mdyt25wnm6v5oqddfk7102clylf" + "&client_secret=" + "honubqy3o1jpu30rrbkgqotfg08m2m" + "&grant_type=client_credentials";
+        try {
+            const response = await axios.post(link);
+            // console.log(response.data, link);
+            // console.log(response.data.explanation);
+            return response.data.access_token;
+        } catch (error) {
+            // console.log(error.response.body, link);
+            return error;
+        }
+    },
+    async requestUsers(users, oauth){
+        console.log("recieved #ids:", users, oauth)
+        let search = ""
+        for(let item of users){
+            search = search + item + "&id="
+        }
+        search = search.slice(0,-4)
+        // console.log("search:", search)
+        const link = "https://api.twitch.tv/helix/users?id=" + search
+        // console.log("link:", link)
+        let res = await axios.get(link,{
+            headers:{
+                'Authorization': 'Bearer ' + oauth,
+                'Client-ID' : "552mdyt25wnm6v5oqddfk7102clylf"
+            }
+        })
+        console.log("RES!!:", res)
+        console.log("DATA!!:", res.data.data)
+        return res.data.data
     }
 }
