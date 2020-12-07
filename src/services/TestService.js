@@ -51,12 +51,13 @@ export default {
         console.log(res.data)
         return(data)
     },
-    async getResponse(){
+    async getResponse(question){
         let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
         let res = await axios.post(link,{
             flag:"getResponses",
             catagory:"placeholder",
-            payload:"placeholder"
+            payload:"placeholder",
+            question: question
         })
         // console.log(res.data)
         res = JSON.parse(res.data)
@@ -79,6 +80,40 @@ export default {
             console.log("SUCCESS")
             return(0)
         }
+    },
+    async getControlPanelData(){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag:"cpanelData",
+            payload:"placeholder"
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        res = res.message.Item
+        return res
+    },
+    async setConsoleData(field, value){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag:"setCpanel",
+            payload: value,
+            field: field
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        res = res.message
+        return res
+    },
+    async setAllConsole(data){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag:"setAllCpanel",
+            payload: data,
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        res = res.message
+        return res
     },
     async answerHistory(question){
         let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"

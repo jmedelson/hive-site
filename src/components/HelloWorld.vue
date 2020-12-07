@@ -30,7 +30,15 @@
       <v-col cols="6" md="3" ><v-btn class="float-none float-md-right" block color="#2a07ff" outlined v-on:click="setCorrect(false)" v-bind:class="[this.correct == 'Incorrect' ? 'selected':'']">Incorrect</v-btn></v-col>    
     </v-row>
     <v-row align="center">
-      <v-col cols="0" md="4"></v-col>
+      <v-col cols="0" md="4">
+        <v-select
+        :items="questionHistory"
+        label="Select Question Filter"
+        v-model="selectedQuestion"
+        v-on:change="getRespones()"
+        >
+        </v-select>
+      </v-col>
       <v-col cols="12" md="4"><v-btn color="#ff1862" elevation="4" block v-on:click="getRespones()">Get Responses</v-btn></v-col>
       <v-spacer></v-spacer>
       <v-col><v-checkbox v-model="autoPoll" label="Auto" @change="setTimer()"></v-checkbox></v-col>
@@ -77,27 +85,29 @@ export default {
         count:0
       },
       autoPoll: false,
-      myInterval:''
+      myInterval:'',
+      questionHistory:[],
+      selectedQuestion:""
 
     }
   },
   created() {
     TestService.getAWSdata()
-      .then(
-        (([scene,question,answer, correct]) => {
-          this.$set(this, "scene", scene);
-          this.$set(this, "question", question);
-          this.$set(this, "answer", answer);
-          if(correct==true){
-            this.$set(this, "correct", "Correct");
-          }else if(correct==false){
-            this.$set(this, "correct", "Incorrect");
-          }else{
-            this.$set(this, "correct", "unset");
-          }
-        }).bind(this)
-      )
-    this.getRespones()
+    .then(
+      (([scene,question,answer, correct]) => {
+        this.$set(this, "scene", scene);
+        this.$set(this, "question", question);
+        this.$set(this, "answer", answer);
+        if(correct==true){
+          this.$set(this, "correct", "Correct");
+        }else if(correct==false){
+          this.$set(this, "correct", "Incorrect");
+        }else{
+          this.$set(this, "correct", "unset");
+        }
+      }).bind(this)
+    )
+    this.updateQuestionList()
   },
   methods: {
     async setScene(scene){
@@ -117,6 +127,7 @@ export default {
           console.log(res)
           this.$set(this, "question", res);
           // this.setCorrect("unset")
+          this.updateQuestionList()
         }).bind(this)
       )
     },
@@ -176,8 +187,20 @@ export default {
       console.log("HOLD DATA2:::::", hold)
       return(hold)
     },
+    updateQuestionList(){
+      TestService.getVotedata()
+      .then(
+        (res=>{
+            console.log(res)
+            res= res.reverse()
+            this.$set(this, "questionHistory", res);
+            this.$set(this, "selectedQuestion", this.questionHistory[0]);
+            this.getRespones()
+        }).bind(this)
+      ) 
+    },
     async getRespones(){
-      TestService.getResponse()
+      TestService.getResponse(this.selectedQuestion)
       .then(
         (res => {
           console.log("RESPONSE DATA: ", res)
