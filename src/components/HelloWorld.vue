@@ -30,6 +30,27 @@
       <v-col cols="6" md="3" ><v-btn class="float-none float-md-right" block color="#2a07ff" outlined v-on:click="setCorrect(false)" v-bind:class="[this.correct == 'Incorrect' ? 'selected':'']">Incorrect</v-btn></v-col>    
     </v-row>
     <v-row align="center">
+    <v-col cols="auto">
+      <h2>Limit respones: </h2>
+    </v-col>
+    <v-col cols="auto">
+      <v-text-field type="number" label="Respone Limit #"
+        v-model="limit"
+        hint="Set to 0 to not enforce a limit" 
+        persistent-hint
+        :append-outer-icon="limitSent ? 'mdi-send-clock-outline' : 'mdi-send'"
+        v-bind:loading="limitSent" 
+        v-bind:disabled="limitSent" 
+        @keyup.enter="setLimit()"
+        @click:append-outer="setLimit()"
+      >
+      </v-text-field>
+    </v-col>
+    <v-col cols="auto">
+      <v-checkbox v-model="displayLimit" label="Display Limit" @change="setDisplayLimit()"></v-checkbox>
+    </v-col>
+    </v-row>
+    <v-row align="center">
       <v-col cols="0" md="4">
         <v-select
         :items="questionHistory"
@@ -87,17 +108,21 @@ export default {
       autoPoll: false,
       myInterval:'',
       questionHistory:[],
-      selectedQuestion:""
-
+      selectedQuestion:"",
+      displayLimit: false,
+      limit: 1000,
+      limitSent: false,
     }
   },
   created() {
     TestService.getAWSdata()
     .then(
-      (([scene,question,answer, correct]) => {
+      (([scene,question,answer, correct, limit, displayLimit]) => {
         this.$set(this, "scene", scene);
         this.$set(this, "question", question);
         this.$set(this, "answer", answer);
+        this.$set(this, "limit", limit);
+        this.$set(this, "displayLimit", displayLimit);
         if(correct==true){
           this.$set(this, "correct", "Correct");
         }else if(correct==false){
@@ -140,6 +165,27 @@ export default {
           // this.setCorrect("unset")
         }).bind(this)
       )
+    },
+    async setLimit(){
+      this.limitSent = true
+      TestService.setData("limit",this.limit)
+      .then(
+        (res => {
+          console.log(res)
+          this.$set(this, "limitSent", false);
+          // this.setCorrect("unset")
+        }).bind(this)
+      )
+    },
+    async setDisplayLimit(){
+      this.$nextTick(()=>{
+        TestService.setData("displayLimit",this.displayLimit)
+        .then(
+          (res => {
+            console.log("display limit res:", res)
+          })
+        )
+      })
     },
     async setCorrect(ans){
       if(ans){

@@ -20,7 +20,7 @@ export default {
         res = JSON.parse(res.data)
         res = res.message
         console.log("res",res)
-        return([res.scene,res.question,res.answer,res.correct])
+        return([res.scene,res.question,res.answer,res.correct,res.limit,res.displayLimit,res.displayQuestion])
     },
     async setScene(scene){
         let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"

@@ -186,6 +186,28 @@
                 </v-row>
             </v-col>
         </v-row>
+        <v-row align="center">
+            <v-col cols="auto">
+                <v-btn
+                    elevation="3"
+                    icon
+                    fab
+                    dark
+                    color="teal"
+                    v-bind:loading="loadingQuestions" 
+                    v-bind:disabled="loadingQuestions" 
+                    v-on:click="getQuestions()"
+                ><v-icon>mdi-refresh</v-icon></v-btn>
+            </v-col>
+            <v-col cols="6">
+                <v-select
+                    :items="questions"
+                    label="Select Question Filter"
+                    v-model="selected"
+                    v-on:change="changeQuestion()"
+                ></v-select>
+            </v-col>
+        </v-row>
         <v-row justify="center" align="center">
             <v-col  cols="12" sm="3" ><v-btn v-on:click="reset()" block color="red lighten-1">Reset</v-btn></v-col>
             <v-col cols="0" sm="1" class="d-none d-sm-block"></v-col>
@@ -217,7 +239,9 @@ export default {
             p2life:false,
             p3life:false,
             p4life:false,
-            
+            questions:[],
+            selected:"",
+            loadingQuestions:false
         }
     },
     computed: {
@@ -229,6 +253,16 @@ export default {
             (res=>{
                 console.log(res)
                  this.$set(this, "main", res);
+            }).bind(this)
+        )
+        this.getQuestions()
+        TestService.getAWSdata()
+        .then(
+            (res => {
+                console.log("AWS DATA")
+                console.log(res)
+                console.log(res[6])
+                this.$set(this, "selected", res[6]);
             }).bind(this)
         )
     },
@@ -272,6 +306,26 @@ export default {
                     if(res == "success"){
                         this.loading=false
                     }
+                }).bind(this)
+            )
+        },
+        changeQuestion(){
+            TestService.setData("displayQuestion",this.selected)
+            .then(
+                (res=>{
+                    console.log(res)
+                }).bind(this)
+            )
+        },
+        getQuestions(){
+            this.loadingQuestions = true
+            TestService.getVotedata()
+            .then(
+                (res=>{
+                    console.log(res)
+                    res = res.reverse()
+                    this.$set(this, "questions", res);
+                    this.loadingQuestions = false
                 }).bind(this)
             )
         }

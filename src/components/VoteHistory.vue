@@ -60,6 +60,7 @@ export default {
         .then(
             (res=>{
                 console.log(res)
+                res = res.reverse()
                 this.$set(this, "questions", res);
             }).bind(this)
         ) 
