@@ -2,11 +2,12 @@
   <div class="hello">
     
     <v-row align="center">
-      <v-col cols="12" md="3"><h2>Current Scene: <span v-html="scene"></span></h2></v-col>
+      <v-col cols="12" sm="12" md="auto"><h2>Current Scene: <span v-html="scene"></span></h2></v-col>
       <v-spacer></v-spacer>
-      <v-col cols="12" sm="4" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('wait')" v-bind:class="[this.scene == 'wait' ? 'selected':'']">change scene - wait</v-btn></v-col>
-      <v-col cols="12" sm="4" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('poll')" v-bind:class="[this.scene == 'poll' ? 'selected':'']">change scene - poll</v-btn></v-col>
-      <v-col cols="12" sm="4" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('agree')" v-bind:class="[this.scene == 'agree' ? 'selected':'']">change scene - agree</v-btn></v-col>
+      <v-col cols="12" sm="3" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('hide')" v-bind:class="[this.scene == 'hide' ? 'selected':'']">change scene - hide</v-btn></v-col>
+      <v-col cols="12" sm="3" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('wait')" v-bind:class="[this.scene == 'wait' ? 'selected':'']">change scene - wait</v-btn></v-col>
+      <v-col cols="12" sm="3" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('poll')" v-bind:class="[this.scene == 'poll' ? 'selected':'']">change scene - poll</v-btn></v-col>
+      <v-col cols="12" sm="3" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('agree')" v-bind:class="[this.scene == 'agree' ? 'selected':'']">change scene - agree</v-btn></v-col>
     </v-row>
     <v-row align="center">
       <v-col cols="12" md="3"><h2>Question</h2></v-col>
