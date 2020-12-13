@@ -19,6 +19,7 @@
         <v-btn color="#141386" rounded v-on:click="display=0" class="mr-4" v-bind:class="[this.display == 0 ? 'selected':'']">Home</v-btn>
         <v-btn color="#141386" rounded v-on:click="display=1" class="mr-4" v-bind:class="[this.display == 1 ? 'selected':'']">Poll Results</v-btn>
         <v-btn color="#141386" rounded v-on:click="display=2" class="mr-4" v-bind:class="[this.display == 2 ? 'selected':'']">Control Panel</v-btn>
+        <v-btn color="#141386" rounded v-on:click="display=3" class="mr-4" v-bind:class="[this.display == 3 ? 'selected':'']">Data Panel</v-btn>
         <!-- <v-btn
             color="#ff1862"
             elevation="4"
@@ -32,6 +33,7 @@
         <HelloWorld :key="childKey" v-if="display==0"/>
         <VoteHistory v-else-if="display==1"/>
         <ControlPanel v-else-if="display==2"/>
+        <DataPanel v-else-if="display==3"/>
       </v-container>
     </v-main>
   </v-app>
@@ -41,6 +43,7 @@
 import HelloWorld from './components/HelloWorld';
 import VoteHistory from './components/VoteHistory';
 import ControlPanel from './components/ControlPanel';
+import DataPanel from './components/DataPanel';
 import TestService from './services/TestService.js';
 
 export default {
@@ -50,6 +53,7 @@ export default {
     HelloWorld,
     VoteHistory,
     ControlPanel,
+    DataPanel,
   },
 
   data: () => ({

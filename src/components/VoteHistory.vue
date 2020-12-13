@@ -1,6 +1,6 @@
 <template>
     <div>
-        <H1>New vue view</H1>
+        <H1>Voting History</H1>
         <v-select
         :items="questions"
         label="Select Question Filter"
@@ -30,6 +30,9 @@
                 </li>
             </ul>
         </div>
+        <h2
+        v-if="error"
+        >No data found</h2>
         
     </div>
 </template>
@@ -48,7 +51,8 @@ export default {
             selected2:"",
             answers:{},
             channels:[],
-            display:[]
+            display:[],
+            error: false,
 
         }
     },
@@ -72,10 +76,20 @@ export default {
             .then(
                 (res=>{
                     console.log(res)
-                    this.$set(this, "answers", res);
-                    this.$set(this, "selected2", "");
-                    this.$set(this, "display", [])
-                    this.$set(this, "channels", Object.keys(res))
+                    if(res=="502error"){
+                        this.$set(this, "answers", {});
+                        this.$set(this, "channels", []);
+                        this.$set(this, "selected2", "");
+                        this.$set(this, "display", []);
+                        this.$set(this, "error", true);
+                    }else{
+                        this.$set(this, "error", false);
+                        this.$set(this, "answers", res);
+                        this.$set(this, "selected2", "");
+                        this.$set(this, "display", [])
+                        this.$set(this, "channels", Object.keys(res))
+                    }
+                    
                 }).bind(this)
             )
         },

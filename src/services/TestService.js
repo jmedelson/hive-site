@@ -123,6 +123,9 @@ export default {
         })
         console.log(res)
         res = JSON.parse(res.data)
+        if(res.message.Count<1){
+            return "502error"
+        }
         res = res.message
         let hold = {}
         try{
@@ -194,5 +197,15 @@ export default {
         console.log("RES!!:", res)
         console.log("DATA!!:", res.data.data)
         return res.data.data
+    },
+    async removeQuestion(question){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag: "removeQuestion",
+            payload: question
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        return res.message
     }
 }
