@@ -207,5 +207,44 @@ export default {
         console.log(res)
         res = JSON.parse(res.data)
         return res.message
+    },
+    async addBlockedWord(word){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag: "addBlocked",
+            payload: word
+        })
+        console.log(res)
+    },
+    async getWordMap(){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag: "wordMap",
+            payload: "placeholder"
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        return res.message
+    },
+    async setWordMap(word,map){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag: "setMapWord",
+            payload: word,
+            map:map
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        return res.message
+    },
+    async deleteMap(word){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag: "deleteMap",
+            payload: word,
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        return res.message
     }
 }
