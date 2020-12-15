@@ -73,8 +73,10 @@
                     </v-col>
                 </v-row>
                  <ul>
-                    <li v-for="item in blockedWords" :key="item.word"
-                    ><h3>{{item.word}}</h3></li>
+                    <li v-for="(item,index) in blockedWords" :key="item.word"
+                        @click="deleteBlock(index)"
+                        ><h3 class="d-inline-block">{{item.word}}</h3>
+                        <h3 class="d-inline-block float-right" v-if="item.selected">Click again to delete</h3></li>
                  </ul>
                 
             </v-tab-item>
@@ -172,7 +174,8 @@ export default {
             blockSent: false,
             lastDeleteClickIndex:null,
             oldWord: "",
-            newWord: ""
+            newWord: "",
+            lastBlockSelected:null,
         }
     },
     created() {
@@ -209,7 +212,12 @@ export default {
             .then(
                 (res=>{
                     console.log(res)
-                    this.blockedWords.push(this.newBlockedWord)
+                    let tempItem={
+                        word:this.newBlockedWord,
+                        map:"XXXXX",
+                        selected:false
+                    }
+                    this.blockedWords.push(tempItem)
                     this.newBlockedWord = ""
                     this.blockSent = false
                 }).bind(this)
@@ -226,6 +234,7 @@ export default {
                     console.log(res)
                     for(let item of res){
                         if(item.map == "XXXXX"){
+                            item["selected"] = false
                             this.blockedWords.push(item)
                         }else{
                             item["loading"] = false
@@ -313,6 +322,27 @@ export default {
                 
                 console.log(false)
             }
+        },
+        deleteBlock(index){
+            if(!this.blockedWords[index].selected){
+                this.blockedWords[index].selected = true
+                if(this.lastBlockSelected != null){
+                    this.blockedWords[this.lastBlockSelected].selected = false
+                    this.lastBlockSelected = index
+                }
+                this.lastBlockSelected = index
+                return
+            }
+            this.lastBlockSelected= null
+            let word = this.blockedWords[index].word
+            TestService.deleteMap(word)
+            .then(
+                (res=>{
+                    console.log(res)
+                    this.blockedWords.splice(index, 1)
+                })
+            )
+            console.log(word)
         }
     },
 }
