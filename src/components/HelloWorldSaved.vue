@@ -59,7 +59,7 @@
     </v-col>
     </v-row>
     <v-row align="center">
-      <v-col cols="12" md="4">
+      <v-col cols="0" md="4">
         <v-select
         :items="questionHistory"
         label="Select Question Filter"
@@ -70,70 +70,16 @@
       </v-col>
       <v-col cols="12" md="4"><v-btn color="#ff1862" elevation="4" block v-on:click="getRespones()">Get Responses</v-btn></v-col>
       <v-spacer></v-spacer>
-      <v-col>
-        <v-text-field
-          type="number" 
-          label="Auto Refresh Rate"
-          v-model="refreshRate">
-        </v-text-field>
-      </v-col>
-      <v-col>
-        <v-checkbox v-model="autoPoll" label="Auto" @change="setTimer()">
-        </v-checkbox>
-      </v-col>
+      <v-col><v-checkbox v-model="autoPoll" label="Auto" @change="setTimer()"></v-checkbox></v-col>
     </v-row>
-    <v-row align="center" justify="center">
-      <v-col cols="12" md="4">
-        <v-switch class="center-switch"
-          v-model="displayComplex"
-          :label="`Show Edit View: ${displayComplex.toString()}`"
-        ></v-switch>
-      </v-col>
-      <v-col cols="12" md="4">
-        <H2>
-          Last merged ({{this.last.word1}}) into ({{this.last.word2}})
-        </H2>
-      </v-col>
-      <v-col cols="12" md="4"><v-btn block color="#2a07ff" outlined class="float-right" v-on:click="undoMerge()"><v-icon>mdi-undo</v-icon> Undo</v-btn></v-col>
+    <v-row align="center">
+      <v-col cols="12" md="5"><H2>Last merged ({{this.last.word1}}) into ({{this.last.word2}})</H2></v-col>
+      <v-spacer></v-spacer>
+      <v-col cols="12" md="5"><v-btn block color="#2a07ff" outlined class="float-right" v-on:click="undoMerge()"><v-icon>mdi-undo</v-icon> Undo</v-btn></v-col>
     </v-row>
-    <v-row>
-      <v-col cols="6" sm="4" md="3" xl="2" v-for="(item,index) in items" :key="index" align="stretch">
-        <div v-if="displayComplex" class="complex-item">
-          <v-text-field
-            label="Word"
-            class="complex-input"
-            outlined
-            v-bind:loading="index==savingIndex" 
-            v-bind:disabled="index==savingIndex" 
-            v-model="items[index]['word']"
-            @keyup.enter="rename(index)"
-          ></v-text-field>
-          <v-text-field
-            label="Count"
-            class="complex-input"
-            outlined
-            v-bind:loading="index==savingIndex" 
-            v-bind:disabled="index==savingIndex" 
-            v-model="items[index]['count']"
-            @keyup.enter="editCount(index)"
-          ></v-text-field>
-          <ul>
-            <li v-for="key in parseKeys(item)" :key="key" class="sublist">
-              <span>&#9679; {{key.substring(5)}} : {{item[key]}}</span>
-              <v-btn icon rounded color="red" class="float-right list-item-btn"
-              @click="unmerge(item.word,key)"> 
-                <v-icon dark>
-                  mdi-minus
-                </v-icon>
-              </v-btn>
-            </li>
-          </ul>
-        </div>
-        <div class="item-div" v-on:click="itemSelect(item)" v-bind:class="[item1.word == item.word ? 'first-word':'']" v-else>
-          <p class="item-text">
-            {{item.word}}---{{item.count}}
-          </p>
-        </div>
+    <v-row align="center">
+      <v-col cols="6" sm="4" md="3" xl="2" v-for="(item,index) in items" :key="index" >
+        <div class="item-div" v-on:click="itemSelect(item.word)" v-bind:class="[item1 == item.word ? 'first-word':'']"><p class="item-text">{{item.word}}---{{item.count}}</p></div>
       </v-col>
     </v-row>
     <!-- <ul>
@@ -159,7 +105,6 @@ export default {
       answer:'',
       correct:'unset',
       items:[],
-      itemsCopy:[],
       rules:{},
       item1:false,
       item2:false,
@@ -177,10 +122,7 @@ export default {
       limitSent: false,
       newQuestion: "",
       newQuestionButton: "Add Question",
-      newQuestionLoading:false,
-      displayComplex:false,
-      refreshRate:30,
-      savingIndex:null
+      newQuestionLoading:false
     }
   },
   created() {
@@ -299,6 +241,31 @@ export default {
           }).bind(this)
         );
     },
+    itemCombine(data){
+      let hold = []
+      for(let i = 0; i<data.length; i++){
+        // console.log(data[i].word in this.rules)
+        if(data[i].word in this.rules){
+          let check = this.rules[data[i].word]
+          // console.log(data[i].word,">>>>>",check)
+          for(let j = 0; j<data.length; j++){
+            if(data[j].word == check){
+              data[j].count += data[i].count
+              data[i].count = 0
+            }
+          }
+        }
+      }
+      for(let k = 0; k<data.length; k++){
+        if(data[k].count>0){
+          hold.push(data[k])
+        }
+      }
+      console.log("HOLD DATA:::::", hold)
+      hold.sort((a, b) => (a.count<b.count)? 1 : -1)
+      console.log("HOLD DATA2:::::", hold)
+      return(hold)
+    },
     updateQuestionList(){
       TestService.getVotedata()
       .then(
@@ -316,9 +283,8 @@ export default {
       .then(
         (res => {
           console.log("RESPONSE DATA: ", res)
-          // res = this.itemCombine(res)
+          res = this.itemCombine(res)
           this.$set(this, "items", res);
-          this.$set(this, "itemsCopy", JSON.parse(JSON.stringify(res)));
         }).bind(this)
       )
       console.log("items", this.items)
@@ -327,48 +293,36 @@ export default {
       TestService.sendReset()
     },
     itemSelect(word){
+      console.log(word,this.item1, this.item2)
       if(!this.item1){
         this.item1 = word;
-        console.log(word,this.item1.word, this.item2.word)
       }else if(!this.item2){
         this.item2 = word;
-        console.log(word,this.item1.word, this.item2.word)
-        if(this.item1 == this.item2){
-          console.log("dup item protection")
-          this.item1= false;
-          this.item2= false;
-          return
+        this.rules[this.item1] = this.item2;
+        console.log(this.rules)
+        for(let i = 0; i<this.items.length; i++){
+          if(this.item1 == this.items[i].word){
+            this.last = {
+              word1:this.item1,
+              word2:this.item2,
+              count:this.items[i].count
+            }
+          }
         }
-        TestService.mergeAnswer(this.question, this.item1, this.item2)
-        .then(
-          (res=>{
-            console.log("merged res:", res)
-            this.getRespones()
-          }).bind(this)
-        )
-        this.item1= false;
-        this.item2= false;
-
-        // this.items = this.itemCombine(this.items)
+        this.item1 = false;
+        this.item2 = false;
+        this.items = this.itemCombine(this.items)
       }
     },
     setTimer(){
       this.$nextTick(()=>{
         console.log(this.autoPoll)
-        let refreshRate = this.refreshRate
-        if(refreshRate < 2){
-          refreshRate = 2
-        }
-        if(refreshRate>60){
-          refreshRate = 60
-        }
-        refreshRate = refreshRate * 1000
         if(this.autoPoll){
           this.getRespones()
           this.myInterval = setInterval(function(){
             console.log("interval called")
             this.getRespones()
-          }.bind(this), refreshRate)
+          }.bind(this), 30000)
         }else if(!this.autoPoll){
           clearInterval(this.myInterval)
         }
@@ -385,47 +339,6 @@ export default {
       this.item1 = false;
       this.item2 = false;
       console.log("Merge undone")
-    },
-    unmerge(word,unmerge){
-      console.log(word,unmerge)
-      TestService.undoMerge(this.question, word, unmerge)
-      .then(
-        (res=>{
-          console.log("unmerge res:", res)
-          this.getRespones()
-        }).bind(this)
-      )
-    },
-    rename(index){
-      this.savingIndex = index
-      console.log(this.items[index].word, "///", this.itemsCopy[index].word)
-      if(this.items[index].word == this.itemsCopy[index].word){
-        console.log("dup protection check triggered")
-        return
-      }
-      TestService.rename(this.question, this.itemsCopy[index].word, this.items[index].word)
-      .then(
-        (res=>{
-          console.log("Rename res:", res)
-          this.savingIndex = null
-        }).bind(this)
-      )
-    },
-    editCount(index){
-      this.savingIndex = index
-      TestService.editCount(this.question, this.itemsCopy[index].word, this.items[index].count)
-      .then(
-        (res=>{
-          console.log("Rename res:", res)
-          this.savingIndex = null
-          this.getRespones()
-        }).bind(this)
-      )
-    },
-    parseKeys(item){
-      let keys = Object.keys(item)
-      let parsed = keys.filter(key =>key.includes("merge"))
-      return parsed
     }
   }
 }
@@ -438,13 +351,6 @@ export default {
 }
 .item-div:hover{
   background: #d6f7fc;
-}
-.complex-item{
-  border: 2px solid black;
-  padding: 6px;
-}
-.complex-input{
-  text-align: center;
 }
 .item-text{
   text-align: center;
@@ -472,16 +378,6 @@ li {
   margin: 6px auto;
   border: 3px solid black;
   width: 60%;
-}
-.sublist{
-  border: none;
-  margin: 0;
-  width: 98%;
-  line-height: 26px;
-}
-.list-item-btn{
-  height: 26px !important;
-  width: 26px !important;
 }
 a {
   color: #42b983;
@@ -522,9 +418,5 @@ background: darkred;
 #undo-icon{
   margin: 15px auto;
   width: 40px;
-}
-.center-switch{
-  display: flex;
-  justify-content: center;
 }
 </style>

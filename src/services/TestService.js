@@ -237,5 +237,53 @@ export default {
         console.log(res)
         res = JSON.parse(res.data)
         return res.message
+    },
+    async mergeAnswer(question, mergeItem, mergeTarget){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag: "mergeAnswer",
+            payload: question,
+            mergeItem: mergeItem,
+            mergeTarget: mergeTarget
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        return res.message
+    },
+    async undoMerge(question, word, unmerge){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag: "undoMerge",
+            payload: question,
+            word: word,
+            unmerge: unmerge
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        return res.message
+    },
+    async rename(question, original, word){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag: "renameWord",
+            payload: question,
+            word: word,
+            original: original
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        return res.message
+    },
+    async editCount(question, word, count){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag: "editCount",
+            payload: question,
+            word: word,
+            count: count
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        return res.message
     }
 }
