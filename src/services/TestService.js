@@ -22,25 +22,6 @@ export default {
         console.log("res",res)
         return([res.scene,res.question,res.answer,res.correct,res.limit,res.displayLimit,res.displayQuestion])
     },
-    async setScene(scene){
-        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
-        let res = await axios.post(link,{
-            flag:"scene",
-            payload:scene
-        })
-        console.log(res.data)
-        // res = JSON.parse(res.data)
-        // console.log("=====",res.data)
-        return scene;
-    },
-    async setQuestion(question){
-        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
-        let res = await axios.post(link,{
-            flag:"question",
-            payload:question
-        })
-        console.log(res.data)
-    },
     async setData(type,data){
         let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
         let res = await axios.post(link,{
@@ -242,6 +223,16 @@ export default {
         let res = await axios.post(link,{
             flag: "deleteMap",
             payload: word,
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        return res.message
+    },
+    async addQuestion(question){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        let res = await axios.post(link,{
+            flag: "add-question",
+            payload: question,
         })
         console.log(res)
         res = JSON.parse(res.data)

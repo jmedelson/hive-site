@@ -12,8 +12,15 @@
     <v-row align="center">
       <v-col cols="12" md="3"><h2>Question</h2></v-col>
       <v-spacer></v-spacer>
-      <v-col cols="12" md="6"><v-text-field v-model="question" label="Question?" ></v-text-field></v-col>
-      <v-col cols="12" md="auto" ><v-btn color="#2a07ff" outlined v-on:click="setQuestion()" class="float-left float-md-right">Submit Question</v-btn></v-col>
+      <v-col cols="12" md="6">
+        <v-text-field v-model="newQuestion" label="Question?" 
+          @keyup.enter="addQuestion()"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" md="auto" ><v-btn color="#2a07ff" outlined 
+        v-bind:loading="newQuestionLoading" 
+        v-bind:disabled="newQuestionLoading" 
+        v-on:click="addQuestion()" class="float-left float-md-right">{{newQuestionButton}}</v-btn></v-col>
     </v-row>
     <v-row align="center">
       <v-col cols="12" md="3"><h2>Answer</h2></v-col>
@@ -56,8 +63,8 @@
         <v-select
         :items="questionHistory"
         label="Select Question Filter"
-        v-model="selectedQuestion"
-        v-on:change="getRespones()"
+        v-model="question"
+        v-on:change="setQuestion()"
         >
         </v-select>
       </v-col>
@@ -113,6 +120,9 @@ export default {
       displayLimit: false,
       limit: 1000,
       limitSent: false,
+      newQuestion: "",
+      newQuestionButton: "Add Question",
+      newQuestionLoading:false
     }
   },
   created() {
@@ -146,16 +156,38 @@ export default {
         }).bind(this)
       );
     },
-    async setQuestion(){
-      TestService.setData("question",this.question.trim())
+    async addQuestion(){
+      this.newQuestionLoading = true
+      TestService.addQuestion(this.newQuestion)
       .then(
-        (res => {
-          console.log(res)
-          this.$set(this, "question", res);
-          // this.setCorrect("unset")
-          this.updateQuestionList()
+        (res =>{
+          console.log("add question:", res)
+          this.newQuestionLoading = false
+          if(res){
+            this.newQuestionButton = "Question Added"
+            this.questionHistory.unshift(this.newQuestion)
+          }else{
+            this.newQuestionButton = "Already Exists"
+          }
+          this.newQuestion = ""
+          setTimeout(() => this.newQuestionButton = "Add Question", 3000);
         }).bind(this)
       )
+    },
+    async setQuestion(){
+      this.$nextTick(()=>{
+        console.log("SET QUESTION: ", this.question)
+        TestService.setData("question",this.question.trim())
+        .then(
+          (res => {
+            console.log(res)
+            this.$set(this, "question", res);
+            // this.setCorrect("unset")
+            // this.updateQuestionList()
+          }).bind(this)
+        )
+        this.getRespones()
+      })
     },
     async setAnswer(){
       TestService.setData("answer",this.answer.trim())
@@ -247,7 +279,7 @@ export default {
       ) 
     },
     async getRespones(){
-      TestService.getResponse(this.selectedQuestion)
+      TestService.getResponse(this.question)
       .then(
         (res => {
           console.log("RESPONSE DATA: ", res)
