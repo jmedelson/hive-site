@@ -119,7 +119,7 @@
           ></v-text-field>
           <ul>
             <li v-for="key in parseKeys(item)" :key="key" class="sublist">
-              <span>&#9679; {{key.substring(5)}} : {{item[key]}}</span>
+              <span class="mergeItem">&#9679; {{key.substring(5)}} : {{item[key]}}</span>
               <v-btn icon rounded color="red" class="float-right list-item-btn"
               @click="unmerge(item.word,key)"> 
                 <v-icon dark>
@@ -216,7 +216,7 @@ export default {
     },
     async addQuestion(){
       this.newQuestionLoading = true
-      TestService.addQuestion(this.newQuestion)
+      TestService.addQuestion(this.newQuestion.trim())
       .then(
         (res =>{
           console.log("add question:", res)
@@ -235,7 +235,7 @@ export default {
     async setQuestion(){
       this.$nextTick(()=>{
         console.log("SET QUESTION: ", this.question)
-        TestService.setData("question",this.question.trim())
+        TestService.setData("question",this.question)
         .then(
           (res => {
             console.log(res)
@@ -526,5 +526,9 @@ background: darkred;
 .center-switch{
   display: flex;
   justify-content: center;
+}
+.mergeItem{
+  max-width: 80%;
+  display: inline-block;
 }
 </style>
