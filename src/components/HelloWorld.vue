@@ -61,7 +61,7 @@
     <v-row align="center">
       <v-col cols="12" md="4">
         <v-select
-        :items="questionHistory"
+        :items="orderQuestions"
         label="Select Question Filter"
         v-model="question"
         v-on:change="setQuestion()"
@@ -202,6 +202,13 @@ export default {
       }).bind(this)
     )
     this.updateQuestionList()
+  },
+  computed: {
+    orderQuestions(){
+      let questions = this.questionHistory
+      console.log("Ordering questions----",questions.sort())
+      return questions
+    }
   },
   methods: {
     async setScene(scene){
