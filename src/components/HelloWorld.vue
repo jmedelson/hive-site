@@ -97,7 +97,7 @@
       <v-col cols="12" md="4"><v-btn block color="#2a07ff" outlined class="float-right" v-on:click="undoMerge()"><v-icon>mdi-undo</v-icon> Undo</v-btn></v-col>
     </v-row>
     <v-row>
-      <v-col cols="6" sm="4" md="3" xl="2" v-for="(item,index) in items" :key="index" align="stretch">
+      <v-col cols="6" sm="4" md="3" xl="2" v-for="(item,index) in topResults" :key="index" align="stretch">
         <div v-if="displayComplex" class="complex-item">
           <v-text-field
             label="Word"
@@ -208,6 +208,10 @@ export default {
       let questions = this.questionHistory
       console.log("Ordering questions----",questions.sort())
       return questions
+    },
+    topResults(){
+      let items = this.items
+      return items.slice(0,30)
     }
   },
   methods: {
