@@ -20,7 +20,7 @@ export default {
         res = JSON.parse(res.data)
         res = res.message
         console.log("res",res)
-        return([res.scene,res.question,res.answer,res.correct,res.limit,res.displayLimit,res.displayQuestion])
+        return([res.scene,res.question,res.answer,res.correct,res.limit,res.displayLimit,res.choicenum,res.choice1,res.choice2,res.choice3,res.choice4])
     },
     async setData(type,data){
         let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
@@ -285,5 +285,22 @@ export default {
         console.log(res)
         res = JSON.parse(res.data)
         return res.message
+    },
+    async sendChoices(num, op1, op2, op3, op4){
+        let link = "https://c6qsh7k1l1.execute-api.us-east-2.amazonaws.com/default/hiveMind"
+        console.log(num, op1, op2, op3, op4)
+        let res = await axios.post(link,{
+            flag: "sendChoices",
+            payload: "choice data sent",
+            choicenum: num,
+            choice1:op1,
+            choice2:op2,
+            choice3:op3,
+            choice4:op4
+        })
+        console.log(res)
+        res = JSON.parse(res.data)
+        return res.message
+
     }
 }

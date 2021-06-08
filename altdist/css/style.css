@@ -1,0 +1,80 @@
+:root {
+    --transition: 0.2;
+    --bg-one: #0f0514;
+    --bg-two: #320449;
+    --stop: 40;
+    --angle: 45;
+    --border-width: 5;
+    --padlock-size: 300;
+    --border-radius: 6;
+  }
+body{
+    background-color: blue;
+}
+#title{
+    color: white;
+    text-align: center;
+    font-size: 4rem;
+}
+#holder{
+    width: 50%;
+    margin: auto;
+}
+#password{
+    padding: 12px 20px;
+    font-size: 2rem;
+    border-width: calc(var(--border-width) * 1px);
+    border-style: solid;
+    border-color: var(--accent);
+    border-radius: calc(var(--border-radius) * 1px);
+    text-align: center;
+    outline: transparent;
+    width: 100%;
+}
+#password:focus{
+    --accent: rgb(0, 207, 0);
+}
+.login-button {
+    --size: 52;
+    --lightness: 45;
+    align-items: center;
+    background: hsl(100, 80%, calc(var(--lightness) * 1%));
+    border-radius: calc(var(--border-radius) * 1px);
+    cursor: pointer;
+    display: flex;
+    height: calc(var(--size) * 1px);
+    justify-content: center;
+    padding: 12px 20px;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #fff;
+    width: 100%;
+    font-size: 2rem;
+}
+.login-button svg {
+    transform: translate(50%, 0);
+}
+.login-button * {
+    cursor: pointer;
+}
+.login-button:hover {
+    --lightness: 30;
+}
+.login-button:active {
+    --lightness: 20;
+}
+.login-button svg {
+    height: 24px;
+    width: 24px;
+}
+.login-button svg path {
+    fill: #fff;
+}
+#spacer{
+    height: 30px;
+}
+#pwerr{
+    display: none;
+    color: red;
+    margin:0;
+}
