@@ -8,6 +8,7 @@
       <v-col cols="12" sm="3" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('wait')" v-bind:class="[this.scene == 'wait' ? 'selected':'']">change scene - wait</v-btn></v-col>
       <v-col cols="12" sm="3" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('poll')" v-bind:class="[this.scene == 'poll' ? 'selected':'']">change scene - poll</v-btn></v-col>
       <v-col cols="12" sm="3" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('agree')" v-bind:class="[this.scene == 'agree' ? 'selected':'']">change scene - agree</v-btn></v-col>
+      <v-col cols="12" sm="3" md="auto"><v-btn color="#2a07ff" outlined v-on:click="setScene('choice')" v-bind:class="[this.scene == 'choice' ? 'selected':'']">change scene - choice</v-btn></v-col>
     </v-row>
     <v-row align="center">
       <v-col cols="12" md="3"><h2>Question</h2></v-col>
@@ -36,6 +37,28 @@
       v-bind:class="[this.correct == 'Correct' ? 'selected':'']"
       class="float-none float-md-right">Correct</v-btn></v-col>
       <v-col cols="6" md="3" ><v-btn class="float-none float-md-right" block color="#2a07ff" outlined v-on:click="setCorrect(false)" v-bind:class="[this.correct == 'Incorrect' ? 'selected':'']">Incorrect</v-btn></v-col>    
+    </v-row>
+    <v-row align="center">
+    <v-col cols="12" md="6"><h2>Choice Settings:</h2></v-col>
+    <v-spacer></v-spacer>
+    <v-col cols="6" md="2" ><v-btn block color="#2a07ff" outlined 
+      v-on:click="choicenum = 2; choiceChange = true" 
+      v-bind:class="[this.choicenum == 2 ? 'selected':'']">2</v-btn></v-col>
+    <v-col cols="6" md="2" ><v-btn block color="#2a07ff" outlined 
+      v-on:click="choicenum = 4; choiceChange = true" 
+      v-bind:class="[this.choicenum == 4 ? 'selected':'']">4</v-btn></v-col>
+    </v-row>
+    <v-row align="center">
+      <v-col cols="6"><v-text-field v-model="op1" label='Choice 1' outlined clearable  @input.native="choiceChange = true"></v-text-field></v-col>
+      <v-col cols="6"><v-text-field v-model="op2" label='Choice 2' outlined clearable @input.native="choiceChange = true"></v-text-field></v-col>
+      <v-col cols="6" v-if="this.choicenum  == 4"><v-text-field v-model="op3" label='Choice 3' outlined clearable @input.native="choiceChange = true"></v-text-field></v-col>
+      <v-col cols="6" v-if="this.choicenum  == 4"><v-text-field v-model="op4" label='Choice 4' outlined clearable @input.native="choiceChange = true"></v-text-field></v-col>
+    </v-row>
+    <v-row align="center">
+      <v-spacer></v-spacer>
+      <v-col cols="3">
+        <v-btn block color="#2a07ff" outlined :disabled="!choiceChange" @click="saveChoices()">{{this.choiceChange == false ? 'No Change':'Save'}}</v-btn>
+      </v-col>
     </v-row>
     <v-row align="center">
     <v-col cols="auto">
@@ -180,18 +203,29 @@ export default {
       newQuestionLoading:false,
       displayComplex:false,
       refreshRate:30,
-      savingIndex:null
+      savingIndex:null,
+      choicenum: 2,
+      op1:"unloaded",
+      op2:"unloaded",
+      op3:"unloaded",
+      op4:"unloaded",
+      choiceChange:false
     }
   },
   created() {
     TestService.getAWSdata()
     .then(
-      (([scene,question,answer, correct, limit, displayLimit]) => {
+      (([scene,question,answer, correct, limit, displayLimit,choicenum,choice1,choice2,choice3,choice4]) => {
         this.$set(this, "scene", scene);
         this.$set(this, "question", question);
         this.$set(this, "answer", answer);
         this.$set(this, "limit", limit);
         this.$set(this, "displayLimit", displayLimit);
+        this.$set(this, "choicenum", choicenum);
+        this.$set(this, "op1", choice1);
+        this.$set(this, "op2", choice2);
+        this.$set(this, "op3", choice3);
+        this.$set(this, "op4", choice4);
         if(correct==true){
           this.$set(this, "correct", "Correct");
         }else if(correct==false){
@@ -336,6 +370,17 @@ export default {
     },
     async sendReset(){
       TestService.sendReset()
+    },
+    async saveChoices(){
+      TestService.sendChoices(this.choicenum, this.op1,this.op2,this.op3,this.op4)
+      .then(
+        (res=>{
+          console.log(res)
+          if(res  == 'success4'){
+            this.$set(this, "choiceChange", false);
+          }
+        })
+      )
     },
     itemSelect(word){
       if(!this.item1){
